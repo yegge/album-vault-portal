@@ -18,6 +18,11 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<AlbumFormData>({
     resolver: zodResolver(albumFormSchema),
+    defaultValues: {
+      status: "In Development",
+      visibility: "Public",
+      album_type: "LP",
+    },
   });
 
   useEffect(() => {
@@ -162,7 +167,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
 
             <div className="space-y-2">
               <Label htmlFor="album_type">Album Type *</Label>
-              <Select value={watch("album_type")} onValueChange={(value) => setValue("album_type", value as Database["public"]["Enums"]["album_type"])}>
+              <Select value={watch("album_type") || "LP"} onValueChange={(value) => setValue("album_type", value as Database["public"]["Enums"]["album_type"], { shouldValidate: true })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -173,11 +178,14 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
                   <SelectItem value="Compilation">Compilation</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.album_type && (
+                <p className="text-sm text-destructive">{errors.album_type.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select value={watch("status")} onValueChange={(value) => setValue("status", value as Database["public"]["Enums"]["album_status"])}>
+              <Select value={watch("status") || "In Development"} onValueChange={(value) => setValue("status", value as Database["public"]["Enums"]["album_status"], { shouldValidate: true })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -187,11 +195,14 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
                   <SelectItem value="Removed">Removed</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.status && (
+                <p className="text-sm text-destructive">{errors.status.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="visibility">Visibility *</Label>
-              <Select value={watch("visibility")} onValueChange={(value) => setValue("visibility", value as Database["public"]["Enums"]["visibility_level"])}>
+              <Select value={watch("visibility") || "Public"} onValueChange={(value) => setValue("visibility", value as Database["public"]["Enums"]["visibility_level"], { shouldValidate: true })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -201,6 +212,9 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
                   <SelectItem value="Admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.visibility && (
+                <p className="text-sm text-destructive">{errors.visibility.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
