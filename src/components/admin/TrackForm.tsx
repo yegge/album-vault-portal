@@ -63,6 +63,7 @@ export const TrackForm = ({ albumId, trackId, onSuccess, onCancel }: TrackFormPr
             stage_of_production: data.stage_of_production as Database["public"]["Enums"]["production_stage"],
             visibility: data.visibility as Database["public"]["Enums"]["visibility_level"],
             allow_stream: data.allow_stream ?? true,
+            stream_embed: data.stream_embed ?? undefined,
             isrc: data.isrc ?? undefined,
             commentary: data.commentary ?? undefined,
           });
@@ -84,6 +85,7 @@ export const TrackForm = ({ albumId, trackId, onSuccess, onCancel }: TrackFormPr
         stage_of_production: data.stage_of_production,
         visibility: data.visibility,
         allow_stream: data.allow_stream ?? true,
+        stream_embed: data.stream_embed || null,
         isrc: data.isrc || null,
         commentary: data.commentary || null,
         stage_date: new Date().toISOString().split('T')[0],
@@ -248,7 +250,7 @@ export const TrackForm = ({ albumId, trackId, onSuccess, onCancel }: TrackFormPr
               )}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 md:col-span-2">
               <Checkbox
                 id="allow_stream"
                 checked={watch("allow_stream")}
@@ -256,6 +258,19 @@ export const TrackForm = ({ albumId, trackId, onSuccess, onCancel }: TrackFormPr
               />
               <Label htmlFor="allow_stream" className="cursor-pointer">Allow Streaming</Label>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stream_embed">Stream Embed Code</Label>
+            <Textarea 
+              id="stream_embed" 
+              {...register("stream_embed")} 
+              rows={4}
+              placeholder="<iframe src='...' />"
+            />
+            {errors.stream_embed && (
+              <p className="text-sm text-destructive">{errors.stream_embed.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">

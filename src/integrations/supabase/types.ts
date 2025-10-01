@@ -22,6 +22,8 @@ export type Database = {
           album_type: Database["public"]["Enums"]["album_type"]
           artwork_back: string | null
           artwork_front: string
+          artwork_fullcover: string | null
+          artwork_fullinner: string | null
           artwork_sleeve: string | null
           artwork_sticker: string | null
           catalog_number: string
@@ -51,6 +53,8 @@ export type Database = {
           album_type: Database["public"]["Enums"]["album_type"]
           artwork_back?: string | null
           artwork_front: string
+          artwork_fullcover?: string | null
+          artwork_fullinner?: string | null
           artwork_sleeve?: string | null
           artwork_sticker?: string | null
           catalog_number: string
@@ -80,6 +84,8 @@ export type Database = {
           album_type?: Database["public"]["Enums"]["album_type"]
           artwork_back?: string | null
           artwork_front?: string
+          artwork_fullcover?: string | null
+          artwork_fullinner?: string | null
           artwork_sleeve?: string | null
           artwork_sticker?: string | null
           catalog_number?: string

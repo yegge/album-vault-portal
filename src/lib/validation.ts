@@ -38,6 +38,29 @@ export const albumFormSchema = z.object({
     .url("Must be a valid URL")
     .max(500, "URL must be less than 500 characters"),
   
+  artwork_fullcover: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  artwork_fullinner: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  upc: z
+    .string()
+    .trim()
+    .max(20, "UPC must be less than 20 characters")
+    .optional()
+    .or(z.literal("")),
+  
   release_date: z
     .string()
     .optional()
@@ -119,6 +142,13 @@ export const trackFormSchema = z.object({
   visibility: z.enum(["Public", "VIP", "Admin"] as const),
   
   allow_stream: z.boolean().optional(),
+  
+  stream_embed: z
+    .string()
+    .trim()
+    .max(5000, "Embed code must be less than 5000 characters")
+    .optional()
+    .or(z.literal("")),
   
   isrc: z
     .string()

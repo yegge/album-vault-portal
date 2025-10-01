@@ -51,6 +51,9 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
             status: data.status as Database["public"]["Enums"]["album_status"],
             visibility: data.visibility as Database["public"]["Enums"]["visibility_level"],
             artwork_front: data.artwork_front,
+            artwork_fullcover: data.artwork_fullcover ?? undefined,
+            artwork_fullinner: data.artwork_fullinner ?? undefined,
+            upc: data.upc ?? undefined,
             release_date: data.release_date ?? undefined,
             commentary: data.commentary ?? undefined,
           });
@@ -79,6 +82,9 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
         status: data.status,
         visibility: data.visibility,
         artwork_front: data.artwork_front,
+        artwork_fullcover: data.artwork_fullcover || null,
+        artwork_fullinner: data.artwork_fullinner || null,
+        upc: data.upc || null,
         release_date: data.release_date || null,
         commentary: data.commentary || null,
       };
@@ -217,11 +223,35 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="artwork_front">Front Artwork URL *</Label>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="artwork_front">Front Cover URL *</Label>
               <Input id="artwork_front" {...register("artwork_front")} placeholder="https://..." />
               {errors.artwork_front && (
                 <p className="text-sm text-destructive">{errors.artwork_front.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artwork_fullcover">Full Cover URL</Label>
+              <Input id="artwork_fullcover" {...register("artwork_fullcover")} placeholder="https://..." />
+              {errors.artwork_fullcover && (
+                <p className="text-sm text-destructive">{errors.artwork_fullcover.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artwork_fullinner">Full Inner URL</Label>
+              <Input id="artwork_fullinner" {...register("artwork_fullinner")} placeholder="https://..." />
+              {errors.artwork_fullinner && (
+                <p className="text-sm text-destructive">{errors.artwork_fullinner.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="upc">UPC (Admin Only)</Label>
+              <Input id="upc" {...register("upc")} placeholder="123456789012" />
+              {errors.upc && (
+                <p className="text-sm text-destructive">{errors.upc.message}</p>
               )}
             </div>
 

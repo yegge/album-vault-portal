@@ -11,6 +11,8 @@ interface Track {
   duration: string;
   artists?: any[];
   track_status: string;
+  allow_stream?: boolean;
+  stream_embed?: string | null;
 }
 
 interface Album {
@@ -19,6 +21,8 @@ interface Album {
   artwork_back?: string | null;
   artwork_sleeve?: string | null;
   artwork_sticker?: string | null;
+  artwork_fullcover?: string | null;
+  artwork_fullinner?: string | null;
   album_name: string;
   album_artist: string;
   album_type: string;
@@ -61,6 +65,8 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
     album.artwork_back,
     album.artwork_sleeve,
     album.artwork_sticker,
+    album.artwork_fullcover,
+    album.artwork_fullinner,
   ].filter(Boolean);
 
   return (
@@ -259,27 +265,35 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
                   .map((track, index) => (
                     <div
                       key={track.track_id}
-                      className="flex items-center gap-6 p-4 hover:bg-secondary/50 transition-colors group"
+                      className="p-4 hover:bg-secondary/50 transition-colors group space-y-4"
                     >
-                      <span className="text-muted-foreground font-mono text-sm w-8 text-right">
-                        {track.track_number}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-foreground group-hover:text-primary transition-colors truncate">
-                          {track.track_name}
-                        </h4>
-                        {track.artists && track.artists.length > 0 && (
-                          <p className="text-sm text-muted-foreground">
-                            {track.artists.map(a => typeof a === 'string' ? a : a.name).join(', ')}
-                          </p>
-                        )}
+                      <div className="flex items-center gap-6">
+                        <span className="text-muted-foreground font-mono text-sm w-8 text-right">
+                          {track.track_number}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                            {track.track_name}
+                          </h4>
+                          {track.artists && track.artists.length > 0 && (
+                            <p className="text-sm text-muted-foreground">
+                              {track.artists.map(a => typeof a === 'string' ? a : a.name).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {track.track_status}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground font-mono tabular-nums">
+                          {formatDuration(track.duration)}
+                        </span>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {track.track_status}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground font-mono tabular-nums">
-                        {formatDuration(track.duration)}
-                      </span>
+                      {track.stream_embed && (
+                        <div 
+                          className={track.allow_stream === false ? "opacity-30 pointer-events-none" : ""}
+                          dangerouslySetInnerHTML={{ __html: track.stream_embed }}
+                        />
+                      )}
                     </div>
                   ))}
               </div>

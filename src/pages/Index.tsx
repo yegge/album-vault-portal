@@ -13,6 +13,8 @@ interface Album {
   artwork_back?: string | null;
   artwork_sleeve?: string | null;
   artwork_sticker?: string | null;
+  artwork_fullcover?: string | null;
+  artwork_fullinner?: string | null;
   album_name: string;
   album_artist: string;
   album_type: string;
@@ -36,6 +38,8 @@ interface Track {
   duration: string;
   artists?: any[] | null;
   track_status: string;
+  allow_stream?: boolean;
+  stream_embed?: string | null;
 }
 
 const Index = () => {
