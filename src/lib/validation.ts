@@ -147,6 +147,11 @@ export const trackFormSchema = z.object({
     .string()
     .trim()
     .max(5000, "Embed code must be less than 5000 characters")
+    .refine((val) => {
+      if (!val) return true;
+      // Must contain iframe or audio tag
+      return val.includes('<iframe') || val.includes('<audio');
+    }, "Embed code must contain valid iframe or audio tag")
     .optional()
     .or(z.literal("")),
   

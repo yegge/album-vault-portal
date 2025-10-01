@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -291,7 +292,13 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
                       {track.stream_embed && (
                         <div 
                           className={track.allow_stream === false ? "opacity-30 pointer-events-none" : ""}
-                          dangerouslySetInnerHTML={{ __html: track.stream_embed }}
+                          dangerouslySetInnerHTML={{ 
+                            __html: DOMPurify.sanitize(track.stream_embed, {
+                              ALLOWED_TAGS: ['iframe', 'audio', 'source'],
+                              ALLOWED_ATTR: ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'controls', 'type', 'style', 'class'],
+                              ALLOW_DATA_ATTR: false
+                            })
+                          }}
                         />
                       )}
                     </div>

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/lib/logger";
 
 /**
  * Check if the current user has admin role
@@ -17,13 +18,15 @@ export const checkIsAdmin = async (): Promise<boolean> => {
       .single();
 
     if (error) {
-      console.error('Error checking admin role:', error);
+      logger.error('Error checking admin role', { error: error.message, userId: user.id });
       return false;
     }
 
-    return !!data;
+    const isAdmin = !!data;
+    logger.info('Admin access check', { userId: user.id, isAdmin });
+    return isAdmin;
   } catch (error) {
-    console.error('Error in checkIsAdmin:', error);
+    logger.error('Error in checkIsAdmin', { error });
     return false;
   }
 };

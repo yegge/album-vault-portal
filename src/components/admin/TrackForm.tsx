@@ -117,6 +117,15 @@ export const TrackForm = ({ albumId, trackId, onSuccess, onCancel }: TrackFormPr
         reset();
       }
 
+      // Log embed code submission for security monitoring
+      if (data.stream_embed) {
+        logger.info("Track embed code submitted", {
+          trackId: trackId || "new",
+          albumId,
+          embedLength: data.stream_embed.length,
+        });
+      }
+
       logger.info(trackId ? "Track updated" : "Track created", {
         action: trackId ? "update" : "create",
         trackId: trackId || "new",
