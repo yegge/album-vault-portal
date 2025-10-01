@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,49 @@ type AlbumFormData = {
 export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?: () => void }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, reset, setValue } = useForm<AlbumFormData>();
+  const { register, handleSubmit, reset, setValue, watch } = useForm<AlbumFormData>();
+
+  useEffect(() => {
+    const loadAlbum = async () => {
+      if (albumId) {
+        const { data, error } = await supabase
+          .from("albums")
+          .select("*")
+          .eq("id", albumId)
+          .maybeSingle();
+        if (error) {
+          console.error("Error loading album:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load album for editing.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (data) {
+          reset({
+            album_name: data.album_name,
+            album_artist: data.album_artist,
+            catalog_number: data.catalog_number,
+            album_type: data.album_type as Database["public"]["Enums"]["album_type"],
+            status: data.status as Database["public"]["Enums"]["album_status"],
+            visibility: data.visibility as Database["public"]["Enums"]["visibility_level"],
+            artwork_front: data.artwork_front,
+            release_date: data.release_date ?? undefined,
+            commentary: data.commentary ?? undefined,
+          });
+        }
+      } else {
+        // Defaults for new album
+        reset({
+          status: "In Development" as Database["public"]["Enums"]["album_status"],
+          visibility: "Public" as Database["public"]["Enums"]["visibility_level"],
+        });
+      }
+    };
+    loadAlbum();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [albumId]);
 
   const onSubmit = async (data: AlbumFormData) => {
     setLoading(true);
@@ -101,7 +143,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
 
             <div className="space-y-2">
               <Label htmlFor="album_type">Album Type *</Label>
-              <Select onValueChange={(value) => setValue("album_type", value as Database["public"]["Enums"]["album_type"])}>
+              <Select value={watch("album_type")} onValueChange={(value) => setValue("album_type", value as Database["public"]["Enums"]["album_type"])}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -116,7 +158,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
 
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select onValueChange={(value) => setValue("status", value as Database["public"]["Enums"]["album_status"])} defaultValue="In Development">
+              <Select value={watch("status")} onValueChange={(value) => setValue("status", value as Database["public"]["Enums"]["album_status"])}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -130,7 +172,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
 
             <div className="space-y-2">
               <Label htmlFor="visibility">Visibility *</Label>
-              <Select onValueChange={(value) => setValue("visibility", value as Database["public"]["Enums"]["visibility_level"])} defaultValue="Public">
+              <Select value={watch("visibility")} onValueChange={(value) => setValue("visibility", value as Database["public"]["Enums"]["visibility_level"])}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

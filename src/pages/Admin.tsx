@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,8 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
-
+  const [tab, setTab] = useState<"albums" | "create">("albums");
+  const [editingId, setEditingId] = useState<string | undefined>(undefined);
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -54,18 +57,25 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="albums" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "albums" | "create")} className="w-full">
           <TabsList className="mb-8">
             <TabsTrigger value="albums">Albums</TabsTrigger>
-            <TabsTrigger value="create">Create Album</TabsTrigger>
+            <TabsTrigger value="create">{editingId ? "Edit Album" : "Create Album"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="albums">
-            <AlbumList />
+            <AlbumList onEdit={(album) => { setEditingId(album.id); setTab("create"); }} />
           </TabsContent>
 
           <TabsContent value="create">
-            <AlbumForm />
+            <AlbumForm
+              albumId={editingId}
+              onSuccess={() => {
+                setEditingId(undefined);
+                setTab("albums");
+                queryClient.invalidateQueries({ queryKey: ["admin-albums"] });
+              }}
+            />
           </TabsContent>
         </Tabs>
       </main>

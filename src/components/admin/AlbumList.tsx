@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export const AlbumList = () => {
+export const AlbumList = ({ onEdit }: { onEdit?: (album: any) => void }) => {
   const { toast } = useToast();
 
   const { data: albums, isLoading, refetch } = useQuery({
@@ -75,7 +75,7 @@ export const AlbumList = () => {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={() => onEdit?.(album)} aria-label="Edit album">
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(album.id)}>
