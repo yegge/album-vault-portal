@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import BootstrapAdmin from "./components/BootstrapAdmin";
 
 // Lazy load routes that aren't needed immediately
 const Auth = lazy(() => import("./pages/Auth"));
@@ -18,6 +19,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <BootstrapAdmin />
       <BrowserRouter>
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div></div>}>
           <Routes>
