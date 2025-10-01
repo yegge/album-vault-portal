@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,23 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Database } from "@/integrations/supabase/types";
-
-type AlbumFormData = {
-  album_name: string;
-  album_artist: string;
-  catalog_number: string;
-  album_type: Database["public"]["Enums"]["album_type"];
-  status: Database["public"]["Enums"]["album_status"];
-  visibility: Database["public"]["Enums"]["visibility_level"];
-  artwork_front: string;
-  release_date?: string;
-  commentary?: string;
-};
+import { albumFormSchema, type AlbumFormData } from "@/lib/validation";
+import { logger } from "@/lib/logger";
 
 export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?: () => void }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, reset, setValue, watch } = useForm<AlbumFormData>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<AlbumFormData>({
+    resolver: zodResolver(albumFormSchema),
+  });
 
   useEffect(() => {
     const loadAlbum = async () => {
@@ -36,7 +29,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
           .eq("id", albumId)
           .maybeSingle();
         if (error) {
-          console.error("Error loading album:", error);
+          logger.error("Failed to load album for editing", { albumId, error });
           toast({
             title: "Error",
             description: "Failed to load album for editing.",
@@ -72,8 +65,15 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
   const onSubmit = async (data: AlbumFormData) => {
     setLoading(true);
     try {
+      // Ensure all required fields are present and properly typed
       const albumData = {
-        ...data,
+        album_name: data.album_name,
+        album_artist: data.album_artist,
+        catalog_number: data.catalog_number,
+        album_type: data.album_type,
+        status: data.status,
+        visibility: data.visibility,
+        artwork_front: data.artwork_front,
         release_date: data.release_date || null,
         commentary: data.commentary || null,
       };
@@ -105,8 +105,18 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
       }
 
       onSuccess?.();
+      
+      // Audit log for admin action
+      logger.info(albumId ? "Album updated" : "Album created", { 
+        action: albumId ? "update" : "create",
+        albumId: albumId || "new",
+        albumName: data.album_name 
+      });
     } catch (error) {
-      console.error("Error saving album:", error);
+      logger.error("Failed to save album", { 
+        albumId, 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
       toast({
         title: "Error",
         description: "Failed to save album. Please try again.",
@@ -128,17 +138,26 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="album_name">Album Name *</Label>
-              <Input id="album_name" {...register("album_name", { required: true })} />
+              <Input id="album_name" {...register("album_name")} />
+              {errors.album_name && (
+                <p className="text-sm text-destructive">{errors.album_name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="album_artist">Artist *</Label>
-              <Input id="album_artist" {...register("album_artist", { required: true })} />
+              <Input id="album_artist" {...register("album_artist")} />
+              {errors.album_artist && (
+                <p className="text-sm text-destructive">{errors.album_artist.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="catalog_number">Catalog Number *</Label>
-              <Input id="catalog_number" {...register("catalog_number", { required: true })} placeholder="ANG-01" />
+              <Input id="catalog_number" {...register("catalog_number")} placeholder="ANG-01" />
+              {errors.catalog_number && (
+                <p className="text-sm text-destructive">{errors.catalog_number.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -186,7 +205,10 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
 
             <div className="space-y-2">
               <Label htmlFor="artwork_front">Front Artwork URL *</Label>
-              <Input id="artwork_front" {...register("artwork_front", { required: true })} placeholder="https://..." />
+              <Input id="artwork_front" {...register("artwork_front")} placeholder="https://..." />
+              {errors.artwork_front && (
+                <p className="text-sm text-destructive">{errors.artwork_front.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -198,6 +220,9 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
           <div className="space-y-2">
             <Label htmlFor="commentary">Commentary</Label>
             <Textarea id="commentary" {...register("commentary")} rows={4} />
+            {errors.commentary && (
+              <p className="text-sm text-destructive">{errors.commentary.message}</p>
+            )}
           </div>
 
           <Button type="submit" disabled={loading} className="w-full">

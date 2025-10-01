@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/lib/logger";
 
 export const AlbumList = ({ onEdit }: { onEdit?: (album: any) => void }) => {
   const { toast } = useToast();
@@ -34,9 +35,16 @@ export const AlbumList = ({ onEdit }: { onEdit?: (album: any) => void }) => {
         title: "Album deleted",
         description: "The album has been successfully deleted.",
       });
+      
+      // Audit log for admin action
+      logger.info("Album deleted", { action: "delete", albumId: id });
+      
       refetch();
     } catch (error) {
-      console.error("Error deleting album:", error);
+      logger.error("Failed to delete album", { 
+        albumId: id, 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
       toast({
         title: "Error",
         description: "Failed to delete album. Please try again.",
