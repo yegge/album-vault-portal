@@ -9,15 +9,17 @@ import { AlbumForm } from "@/components/admin/AlbumForm";
 import { AlbumList } from "@/components/admin/AlbumList";
 import { TrackForm } from "@/components/admin/TrackForm";
 import { TrackList } from "@/components/admin/TrackList";
-import { LogOut, Music } from "lucide-react";
+import { LogOut, Music, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { checkIsAdmin } from "@/lib/auth";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<"albums" | "create" | "tracks">("albums");
   const [editingAlbumId, setEditingAlbumId] = useState<string | undefined>(undefined);
   const [selectedAlbumId, setSelectedAlbumId] = useState<string | undefined>(undefined);
@@ -34,17 +36,32 @@ const Admin = () => {
       if (error) throw error;
       return data;
     },
+    enabled: isAdmin === true,
   });
+
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
+        return;
       }
+
+      const adminStatus = await checkIsAdmin();
+      setIsAdmin(adminStatus);
       setLoading(false);
+
+      if (!adminStatus) {
+        toast({
+          title: "Access Denied",
+          description: "You do not have admin privileges to access this page.",
+          variant: "destructive",
+        });
+        navigate("/");
+      }
     };
-    checkAuth();
-  }, [navigate]);
+    checkAuthAndRole();
+  }, [navigate, toast]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -58,7 +75,19 @@ const Admin = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
+      </div>
+    );
+  }
+
+  if (isAdmin === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
+          <p className="text-muted-foreground">You do not have admin privileges.</p>
+        </div>
       </div>
     );
   }
