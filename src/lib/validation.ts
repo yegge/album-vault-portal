@@ -52,3 +52,87 @@ export const albumFormSchema = z.object({
 });
 
 export type AlbumFormData = z.infer<typeof albumFormSchema>;
+
+// Helper function to convert MM:SS to PostgreSQL interval format
+export const durationToInterval = (duration: string): string => {
+  const parts = duration.split(':');
+  if (parts.length !== 2) throw new Error("Invalid duration format");
+  
+  const minutes = parseInt(parts[0], 10);
+  const seconds = parseInt(parts[1], 10);
+  
+  if (isNaN(minutes) || isNaN(seconds) || seconds >= 60 || minutes < 0 || seconds < 0) {
+    throw new Error("Invalid duration values");
+  }
+  
+  return `${minutes} minutes ${seconds} seconds`;
+};
+
+// Helper function to convert PostgreSQL interval to MM:SS
+export const intervalToDuration = (interval: string): string => {
+  const minutesMatch = interval.match(/(\d+)\s*minute/);
+  const secondsMatch = interval.match(/(\d+)\s*second/);
+  
+  const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0;
+  const seconds = secondsMatch ? parseInt(secondsMatch[1], 10) : 0;
+  
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
+export const trackFormSchema = z.object({
+  track_number: z
+    .number()
+    .int("Track number must be a whole number")
+    .min(1, "Track number must be at least 1")
+    .max(999, "Track number must be less than 999"),
+  
+  track_name: z
+    .string()
+    .trim()
+    .min(1, "Track name is required")
+    .max(200, "Track name must be less than 200 characters"),
+  
+  duration: z
+    .string()
+    .regex(/^\d{1,2}:\d{2}$/, "Duration must be in MM:SS format (e.g., 3:45)")
+    .refine((val) => {
+      const [mins, secs] = val.split(':').map(Number);
+      return secs < 60;
+    }, "Seconds must be less than 60"),
+  
+  track_status: z.enum(["WIP", "RELEASED", "SHELVED", "B-SIDE"] as const),
+  
+  stage_of_production: z.enum([
+    "CONCEPTION",
+    "DEMO",
+    "IN SESSION",
+    "OUT SESSION",
+    "IN MIX",
+    "OUT MIX",
+    "IN MASTERING",
+    "OUT MASTERING",
+    "RELEASED",
+    "REMOVED",
+    "SHELVED"
+  ] as const),
+  
+  visibility: z.enum(["Public", "VIP", "Admin"] as const),
+  
+  allow_stream: z.boolean().optional(),
+  
+  isrc: z
+    .string()
+    .trim()
+    .max(20, "ISRC must be less than 20 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  commentary: z
+    .string()
+    .trim()
+    .max(2000, "Commentary must be less than 2000 characters")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type TrackFormData = z.infer<typeof trackFormSchema>;

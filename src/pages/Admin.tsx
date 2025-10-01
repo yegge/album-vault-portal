@@ -4,18 +4,37 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlbumForm } from "@/components/admin/AlbumForm";
 import { AlbumList } from "@/components/admin/AlbumList";
-import { LogOut } from "lucide-react";
+import { TrackForm } from "@/components/admin/TrackForm";
+import { TrackList } from "@/components/admin/TrackList";
+import { LogOut, Music } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"albums" | "create">("albums");
-  const [editingId, setEditingId] = useState<string | undefined>(undefined);
+  const [tab, setTab] = useState<"albums" | "create" | "tracks">("albums");
+  const [editingAlbumId, setEditingAlbumId] = useState<string | undefined>(undefined);
+  const [selectedAlbumId, setSelectedAlbumId] = useState<string | undefined>(undefined);
+  const [editingTrackId, setEditingTrackId] = useState<string | undefined>(undefined);
+  const [showTrackForm, setShowTrackForm] = useState(false);
+
+  const { data: albums } = useQuery({
+    queryKey: ["admin-albums"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("albums")
+        .select("id, album_name")
+        .order("album_name", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -57,25 +76,95 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs value={tab} onValueChange={(v) => setTab(v as "albums" | "create")} className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "albums" | "create" | "tracks")} className="w-full">
           <TabsList className="mb-8">
             <TabsTrigger value="albums">Albums</TabsTrigger>
-            <TabsTrigger value="create">{editingId ? "Edit Album" : "Create Album"}</TabsTrigger>
+            <TabsTrigger value="create">{editingAlbumId ? "Edit Album" : "Create Album"}</TabsTrigger>
+            <TabsTrigger value="tracks">
+              <Music className="mr-2 h-4 w-4" />
+              Tracks
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="albums">
-            <AlbumList onEdit={(album) => { setEditingId(album.id); setTab("create"); }} />
+            <AlbumList onEdit={(album) => { setEditingAlbumId(album.id); setTab("create"); }} />
           </TabsContent>
 
           <TabsContent value="create">
             <AlbumForm
-              albumId={editingId}
+              albumId={editingAlbumId}
               onSuccess={() => {
-                setEditingId(undefined);
+                setEditingAlbumId(undefined);
                 setTab("albums");
                 queryClient.invalidateQueries({ queryKey: ["admin-albums"] });
               }}
             />
+          </TabsContent>
+
+          <TabsContent value="tracks" className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <label className="text-sm font-medium mb-2 block">Select Album</label>
+                  <Select
+                    value={selectedAlbumId}
+                    onValueChange={(value) => {
+                      setSelectedAlbumId(value);
+                      setShowTrackForm(false);
+                      setEditingTrackId(undefined);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose an album to manage tracks" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {albums?.map((album) => (
+                        <SelectItem key={album.id} value={album.id}>
+                          {album.album_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedAlbumId && !showTrackForm && (
+                  <Button
+                    onClick={() => {
+                      setShowTrackForm(true);
+                      setEditingTrackId(undefined);
+                    }}
+                    className="mt-6"
+                  >
+                    Add Track
+                  </Button>
+                )}
+              </div>
+
+              {selectedAlbumId && showTrackForm && (
+                <TrackForm
+                  albumId={selectedAlbumId}
+                  trackId={editingTrackId}
+                  onSuccess={() => {
+                    setShowTrackForm(false);
+                    setEditingTrackId(undefined);
+                    queryClient.invalidateQueries({ queryKey: ["album-tracks", selectedAlbumId] });
+                  }}
+                  onCancel={() => {
+                    setShowTrackForm(false);
+                    setEditingTrackId(undefined);
+                  }}
+                />
+              )}
+
+              {selectedAlbumId && !showTrackForm && (
+                <TrackList
+                  albumId={selectedAlbumId}
+                  onEdit={(track) => {
+                    setEditingTrackId(track.track_id);
+                    setShowTrackForm(true);
+                  }}
+                />
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </main>
