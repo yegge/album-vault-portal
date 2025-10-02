@@ -3,14 +3,24 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      // Audit log for authentication events
+      if (event === 'SIGNED_IN' && session) {
+        logger.audit('User signed in', { 
+          userId: session.user.id,
+          email: session.user.email 
+        });
         navigate("/admin");
+      } else if (event === 'SIGNED_OUT') {
+        logger.audit('User signed out');
+      } else if (event === 'USER_UPDATED') {
+        logger.audit('User updated', { userId: session?.user.id });
       }
     });
 

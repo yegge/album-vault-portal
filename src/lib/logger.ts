@@ -12,6 +12,25 @@ interface LogContext {
 class Logger {
   private isDevelopment = import.meta.env.DEV;
 
+  /**
+   * Log security-sensitive events for audit trail
+   */
+  audit(action: string, context?: LogContext) {
+    const timestamp = new Date().toISOString();
+    const auditLog = {
+      timestamp,
+      action,
+      ...context
+    };
+    
+    if (this.isDevelopment) {
+      console.info(`[${timestamp}] AUDIT: ${action}`, context);
+    }
+    
+    // In production, send to monitoring service
+    // Example: POST to logging endpoint
+  }
+
   private log(level: LogLevel, message: string, context?: LogContext) {
     if (this.isDevelopment) {
       const timestamp = new Date().toISOString();
