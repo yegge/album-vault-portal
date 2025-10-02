@@ -38,6 +38,30 @@ export const albumFormSchema = z.object({
     .url("Must be a valid URL")
     .max(500, "URL must be less than 500 characters"),
   
+  artwork_back: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  artwork_sleeve: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  artwork_sticker: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
   artwork_fullcover: z
     .string()
     .trim()
@@ -47,6 +71,72 @@ export const albumFormSchema = z.object({
     .or(z.literal("")),
   
   artwork_fullinner: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  // Streaming links
+  apple_music: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  youtube_music: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  tidal: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  spotify: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  // Purchase links
+  itunes: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  artcore: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  bandcamp: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  
+  cd_vinyl: z
     .string()
     .trim()
     .url("Must be a valid URL")

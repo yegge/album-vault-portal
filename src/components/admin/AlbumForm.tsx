@@ -12,10 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Database } from "@/integrations/supabase/types";
 import { albumFormSchema, type AlbumFormData } from "@/lib/validation";
 import { logger } from "@/lib/logger";
+import { Upload } from "lucide-react";
 
 export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?: () => void }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<AlbumFormData>({
     resolver: zodResolver(albumFormSchema),
     defaultValues: {
@@ -43,6 +45,9 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
           return;
         }
         if (data) {
+          const streamingLinks = data.streaming_links as any || {};
+          const purchaseLinks = data.purchase_links as any || {};
+          
           reset({
             album_name: data.album_name,
             album_artist: data.album_artist,
@@ -51,11 +56,22 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
             status: data.status as Database["public"]["Enums"]["album_status"],
             visibility: data.visibility as Database["public"]["Enums"]["visibility_level"],
             artwork_front: data.artwork_front,
+            artwork_back: data.artwork_back ?? undefined,
+            artwork_sleeve: data.artwork_sleeve ?? undefined,
+            artwork_sticker: data.artwork_sticker ?? undefined,
             artwork_fullcover: data.artwork_fullcover ?? undefined,
             artwork_fullinner: data.artwork_fullinner ?? undefined,
             upc: data.upc ?? undefined,
             release_date: data.release_date ?? undefined,
             commentary: data.commentary ?? undefined,
+            apple_music: streamingLinks.apple_music ?? undefined,
+            youtube_music: streamingLinks.youtube_music ?? undefined,
+            tidal: streamingLinks.tidal ?? undefined,
+            spotify: streamingLinks.spotify ?? undefined,
+            itunes: purchaseLinks.itunes ?? undefined,
+            artcore: purchaseLinks.artcore ?? undefined,
+            bandcamp: purchaseLinks.bandcamp ?? undefined,
+            cd_vinyl: purchaseLinks.cd_vinyl ?? undefined,
           });
         }
       } else {
@@ -70,9 +86,60 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [albumId]);
 
+  const handleFileUpload = async (file: File, fieldName: string) => {
+    if (!file) return;
+    
+    setUploading(fieldName);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('artwork')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('artwork')
+        .getPublicUrl(filePath);
+
+      setValue(fieldName as any, publicUrl, { shouldValidate: true });
+      
+      toast({
+        title: "Upload successful",
+        description: "Artwork has been uploaded.",
+      });
+    } catch (error) {
+      logger.error("Failed to upload artwork", { fieldName, error });
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload artwork. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(null);
+    }
+  };
+
   const onSubmit = async (data: AlbumFormData) => {
     setLoading(true);
     try {
+      const streamingLinks = {
+        apple_music: data.apple_music || null,
+        youtube_music: data.youtube_music || null,
+        tidal: data.tidal || null,
+        spotify: data.spotify || null,
+      };
+
+      const purchaseLinks = {
+        itunes: data.itunes || null,
+        artcore: data.artcore || null,
+        bandcamp: data.bandcamp || null,
+        cd_vinyl: data.cd_vinyl || null,
+      };
+
       // Ensure all required fields are present and properly typed
       const albumData = {
         album_name: data.album_name,
@@ -82,8 +149,13 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
         status: data.status,
         visibility: data.visibility,
         artwork_front: data.artwork_front,
+        artwork_back: data.artwork_back || null,
+        artwork_sleeve: data.artwork_sleeve || null,
+        artwork_sticker: data.artwork_sticker || null,
         artwork_fullcover: data.artwork_fullcover || null,
         artwork_fullinner: data.artwork_fullinner || null,
+        streaming_links: streamingLinks,
+        purchase_links: purchaseLinks,
         upc: data.upc || null,
         release_date: data.release_date || null,
         commentary: data.commentary || null,
@@ -223,28 +295,189 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
               )}
             </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="artwork_front">Front Cover URL *</Label>
-              <Input id="artwork_front" {...register("artwork_front")} placeholder="https://..." />
-              {errors.artwork_front && (
-                <p className="text-sm text-destructive">{errors.artwork_front.message}</p>
-              )}
+            <div className="space-y-4 md:col-span-2 border p-4 rounded-lg">
+              <h3 className="font-semibold text-lg">Album Artwork</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="artwork_front">Front Cover *</Label>
+                <div className="flex gap-2">
+                  <Input id="artwork_front" {...register("artwork_front")} placeholder="URL or upload..." className="flex-1" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploading === "artwork_front"}
+                    onClick={() => document.getElementById("upload_artwork_front")?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  <input
+                    id="upload_artwork_front"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_front")}
+                  />
+                </div>
+                {errors.artwork_front && (
+                  <p className="text-sm text-destructive">{errors.artwork_front.message}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="artwork_back">Back Cover</Label>
+                  <div className="flex gap-2">
+                    <Input id="artwork_back" {...register("artwork_back")} placeholder="URL or upload..." className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading === "artwork_back"}
+                      onClick={() => document.getElementById("upload_artwork_back")?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <input
+                      id="upload_artwork_back"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_back")}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="artwork_sleeve">Sleeve</Label>
+                  <div className="flex gap-2">
+                    <Input id="artwork_sleeve" {...register("artwork_sleeve")} placeholder="URL or upload..." className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading === "artwork_sleeve"}
+                      onClick={() => document.getElementById("upload_artwork_sleeve")?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <input
+                      id="upload_artwork_sleeve"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_sleeve")}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="artwork_sticker">Sticker</Label>
+                  <div className="flex gap-2">
+                    <Input id="artwork_sticker" {...register("artwork_sticker")} placeholder="URL or upload..." className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading === "artwork_sticker"}
+                      onClick={() => document.getElementById("upload_artwork_sticker")?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <input
+                      id="upload_artwork_sticker"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_sticker")}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="artwork_fullcover">Full Cover</Label>
+                  <div className="flex gap-2">
+                    <Input id="artwork_fullcover" {...register("artwork_fullcover")} placeholder="URL or upload..." className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading === "artwork_fullcover"}
+                      onClick={() => document.getElementById("upload_artwork_fullcover")?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <input
+                      id="upload_artwork_fullcover"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_fullcover")}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="artwork_fullinner">Full Inner</Label>
+                  <div className="flex gap-2">
+                    <Input id="artwork_fullinner" {...register("artwork_fullinner")} placeholder="URL or upload..." className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading === "artwork_fullinner"}
+                      onClick={() => document.getElementById("upload_artwork_fullinner")?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <input
+                      id="upload_artwork_fullinner"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "artwork_fullinner")}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="artwork_fullcover">Full Cover URL</Label>
-              <Input id="artwork_fullcover" {...register("artwork_fullcover")} placeholder="https://..." />
-              {errors.artwork_fullcover && (
-                <p className="text-sm text-destructive">{errors.artwork_fullcover.message}</p>
-              )}
+            <div className="space-y-4 md:col-span-2 border p-4 rounded-lg">
+              <h3 className="font-semibold text-lg">Streaming Links</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="apple_music">Apple Music</Label>
+                  <Input id="apple_music" {...register("apple_music")} placeholder="https://music.apple.com/..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="spotify">Spotify</Label>
+                  <Input id="spotify" {...register("spotify")} placeholder="https://open.spotify.com/..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="youtube_music">YouTube Music</Label>
+                  <Input id="youtube_music" {...register("youtube_music")} placeholder="https://music.youtube.com/..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tidal">Tidal</Label>
+                  <Input id="tidal" {...register("tidal")} placeholder="https://tidal.com/..." />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="artwork_fullinner">Full Inner URL</Label>
-              <Input id="artwork_fullinner" {...register("artwork_fullinner")} placeholder="https://..." />
-              {errors.artwork_fullinner && (
-                <p className="text-sm text-destructive">{errors.artwork_fullinner.message}</p>
-              )}
+            <div className="space-y-4 md:col-span-2 border p-4 rounded-lg">
+              <h3 className="font-semibold text-lg">Purchase Links</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="itunes">iTunes (Digital)</Label>
+                  <Input id="itunes" {...register("itunes")} placeholder="https://itunes.apple.com/..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bandcamp">Bandcamp (Digital)</Label>
+                  <Input id="bandcamp" {...register("bandcamp")} placeholder="https://bandcamp.com/..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="artcore">Artcore (Digital)</Label>
+                  <Input id="artcore" {...register("artcore")} placeholder="https://..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cd_vinyl">CD & Vinyl</Label>
+                  <Input id="cd_vinyl" {...register("cd_vinyl")} placeholder="https://..." />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
