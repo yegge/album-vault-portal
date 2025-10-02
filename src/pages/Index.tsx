@@ -203,7 +203,18 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/50 mt-24 py-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Music Catalog. All rights reserved.</p>
+          <p>
+            © 2025 Music Catalog.{" "}
+            <a 
+              href="https://hyperfollow.com/brianyegge" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors underline"
+            >
+              Brian Yegge
+            </a>
+            . All Rights Reserved.
+          </p>
         </div>
       </footer>
     </div>
