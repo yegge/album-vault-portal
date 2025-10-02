@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DOMPurify from "dompurify";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,8 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
     album.artwork_fullinner,
   ].filter(Boolean);
 
+  const [selectedArtworkIndex, setSelectedArtworkIndex] = useState(0);
+
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -86,21 +89,26 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
           <div className="space-y-4">
             <div className="aspect-square rounded-xl overflow-hidden shadow-2xl">
               <img
-                src={album.artwork_front}
-                alt={album.album_name}
+                src={artworks[selectedArtworkIndex]}
+                alt={`${album.album_name} - Image ${selectedArtworkIndex + 1}`}
                 className="w-full h-full object-cover"
               />
             </div>
             {artworks.length > 1 && (
-              <div className="grid grid-cols-3 gap-4">
-                {artworks.slice(1).map((artwork, index) => (
+              <div className="grid grid-cols-6 gap-3">
+                {artworks.map((artwork, index) => (
                   <div
                     key={index}
-                    className="aspect-square rounded-lg overflow-hidden border border-border/50 cursor-pointer hover:border-primary transition-colors"
+                    onClick={() => setSelectedArtworkIndex(index)}
+                    className={`aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all hover:scale-105 ${
+                      selectedArtworkIndex === index 
+                        ? 'border-primary shadow-lg' 
+                        : 'border-border/50 hover:border-primary/50'
+                    }`}
                   >
                     <img
                       src={artwork}
-                      alt={`${album.album_name} - Image ${index + 2}`}
+                      alt={`${album.album_name} - Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
