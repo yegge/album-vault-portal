@@ -159,7 +159,6 @@ export const albumFormSchema = z.object({
   commentary: z
     .string()
     .trim()
-    .max(2000, "Commentary must be less than 2000 characters")
     .optional()
     .or(z.literal("")),
 });
@@ -255,7 +254,6 @@ export const trackFormSchema = z.object({
   commentary: z
     .string()
     .trim()
-    .max(2000, "Commentary must be less than 2000 characters")
     .optional()
     .or(z.literal("")),
 });
