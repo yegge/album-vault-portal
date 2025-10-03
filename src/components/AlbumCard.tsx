@@ -76,9 +76,9 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
               {album.catalog_number}
             </span>
             {album.status === 'Removed' && album.release_date && album.removal_date ? (
-              <div className="text-xs text-muted-foreground text-right">
-                <div>RELEASED: {new Date(album.release_date).toLocaleDateString()}</div>
-                <div>REMOVED: {new Date(album.removal_date).toLocaleDateString()}</div>
+              <div className="text-xs text-right">
+                <div className="text-muted-foreground">RELEASED: {new Date(album.release_date).toLocaleDateString()}</div>
+                <div className="font-bold text-destructive">NO LONGER AVAILABLE as of {new Date(album.removal_date).toLocaleDateString()}</div>
               </div>
             ) : album.release_date && (
               <span className="text-xs text-muted-foreground">

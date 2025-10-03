@@ -136,17 +136,17 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
               <p className="text-2xl text-muted-foreground">{album.album_artist}</p>
             </div>
 
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-4 text-sm">
               {album.status === 'Removed' && album.release_date && album.removal_date ? (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                <div className="flex items-start gap-2">
+                  <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div>
-                    <div>RELEASED: {new Date(album.release_date).toLocaleDateString('en-US', {
+                    <div className="text-muted-foreground">RELEASED: {new Date(album.release_date).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                     })}</div>
-                    <div>REMOVED: {new Date(album.removal_date).toLocaleDateString('en-US', {
+                    <div className="font-bold text-destructive">NO LONGER AVAILABLE as of {new Date(album.removal_date).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -154,7 +154,7 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
                   </div>
                 </div>
               ) : album.release_date && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   {new Date(album.release_date).toLocaleDateString('en-US', {
                     year: 'numeric',
