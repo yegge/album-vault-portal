@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AlbumCard from "@/components/AlbumCard";
 import AlbumDetail from "@/components/AlbumDetail";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search, Music } from "lucide-react";
+import { Music } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Album {
@@ -44,32 +42,14 @@ interface Track {
 
 const Index = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [filteredAlbums, setFilteredAlbums] = useState<Album[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchAlbums();
   }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredAlbums(albums);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredAlbums(
-        albums.filter(
-          (album) =>
-            album.album_name.toLowerCase().includes(query) ||
-            album.album_artist.toLowerCase().includes(query) ||
-            album.catalog_number.toLowerCase().includes(query)
-        )
-      );
-    }
-  }, [searchQuery, albums]);
 
   const fetchAlbums = async () => {
     try {
@@ -81,7 +61,6 @@ const Index = () => {
 
       if (error) throw error;
       setAlbums((data || []) as Album[]);
-      setFilteredAlbums((data || []) as Album[]);
     } catch (error: any) {
       toast({
         title: "Error loading albums",
@@ -140,7 +119,7 @@ const Index = () => {
             <Music className="h-12 w-12 text-primary" />
           </div>
           <h1 className="text-6xl md:text-7xl font-bold text-center mb-6 text-gradient">
-            Music Catalog
+            Discography
           </h1>
           <p className="text-xl text-center text-muted-foreground max-w-2xl mx-auto">
             Explore our curated collection of albums, tracks, and releases
@@ -148,47 +127,29 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Search Bar */}
-      <div className="sticky top-0 z-10 glass border-b border-border/50 py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search albums, artists, or catalog numbers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-14 text-lg bg-card/50 border-border/50 focus:border-primary"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Albums Grid */}
       <main className="max-w-7xl mx-auto px-4 py-12">
         {loading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
           </div>
-        ) : filteredAlbums.length === 0 ? (
+        ) : albums.length === 0 ? (
           <div className="text-center py-20">
             <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-2xl font-semibold mb-2">No albums found</h3>
             <p className="text-muted-foreground">
-              {searchQuery
-                ? "Try adjusting your search terms"
-                : "Check back later for new releases"}
+              Check back later for new releases
             </p>
           </div>
         ) : (
           <>
             <div className="mb-8">
               <p className="text-sm text-muted-foreground">
-                Showing {filteredAlbums.length} {filteredAlbums.length === 1 ? "album" : "albums"}
+                Showing {albums.length} {albums.length === 1 ? "album" : "albums"}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredAlbums.map((album) => (
+              {albums.map((album) => (
                 <AlbumCard
                   key={album.id}
                   album={album}
@@ -204,7 +165,7 @@ const Index = () => {
       <footer className="border-t border-border/50 mt-24 py-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
-            © 2025 Music Catalog.{" "}
+            © 2025 Discography.{" "}
             <a 
               href="https://hyperfollow.com/brianyegge" 
               target="_blank" 
