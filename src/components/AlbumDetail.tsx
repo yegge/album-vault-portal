@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, Play, ShoppingCart, Clock, Disc, Calendar } from "lucide-react";
+import { ExternalLink, Play, Clock, Disc, Calendar } from "lucide-react";
 
 interface Track {
   track_id: string;
@@ -198,7 +198,6 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
                       asChild
                     >
                       <a href={url} target="_blank" rel="noopener noreferrer">
-                        <ShoppingCart className="h-4 w-4" />
                         {format}
                       </a>
                     </Button>
