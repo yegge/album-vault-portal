@@ -29,7 +29,7 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
         <img
           src={album.artwork_front}
           alt={album.album_name}
-          className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+          className="object-contain w-full h-full transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <Button
