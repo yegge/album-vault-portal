@@ -193,7 +193,7 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
                   {Object.entries(album.purchase_links).map(([format, url]) => (
                     <Button
                       key={format}
-                      variant="gradient"
+                      variant="charcoal"
                       size="sm"
                       asChild
                     >
