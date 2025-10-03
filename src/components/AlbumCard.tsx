@@ -12,6 +12,7 @@ interface Album {
   album_artist: string;
   album_type: string;
   release_date?: string | null;
+  removal_date?: string | null;
   catalog_number: string;
   status: string;
 }
@@ -74,7 +75,12 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
             <span className="text-xs text-muted-foreground font-mono">
               {album.catalog_number}
             </span>
-            {album.release_date && (
+            {album.status === 'Removed' && album.release_date && album.removal_date ? (
+              <div className="text-xs text-muted-foreground text-right">
+                <div>RELEASED: {new Date(album.release_date).toLocaleDateString()}</div>
+                <div>REMOVED: {new Date(album.removal_date).toLocaleDateString()}</div>
+              </div>
+            ) : album.release_date && (
               <span className="text-xs text-muted-foreground">
                 {new Date(album.release_date).getFullYear()}
               </span>

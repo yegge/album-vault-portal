@@ -63,6 +63,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
             artwork_fullinner: data.artwork_fullinner ?? undefined,
             upc: data.upc ?? undefined,
             release_date: data.release_date ?? undefined,
+            removal_date: data.removal_date ?? undefined,
             commentary: data.commentary ?? undefined,
             apple_music: streamingLinks.apple_music ?? undefined,
             youtube_music: streamingLinks.youtube_music ?? undefined,
@@ -158,6 +159,7 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
         purchase_links: purchaseLinks,
         upc: data.upc || null,
         release_date: data.release_date || null,
+        removal_date: data.removal_date || null,
         commentary: data.commentary || null,
       };
 
@@ -492,6 +494,13 @@ export const AlbumForm = ({ albumId, onSuccess }: { albumId?: string; onSuccess?
               <Label htmlFor="release_date">Release Date</Label>
               <Input id="release_date" type="date" {...register("release_date")} />
             </div>
+
+            {watch("status") === "Removed" && (
+              <div className="space-y-2">
+                <Label htmlFor="removal_date">Removal Date</Label>
+                <Input id="removal_date" type="date" {...register("removal_date")} />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

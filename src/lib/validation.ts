@@ -156,6 +156,11 @@ export const albumFormSchema = z.object({
     .optional()
     .refine((date) => !date || !isNaN(Date.parse(date)), "Invalid date format"),
   
+  removal_date: z
+    .string()
+    .optional()
+    .refine((date) => !date || !isNaN(Date.parse(date)), "Invalid date format"),
+  
   commentary: z
     .string()
     .trim()
