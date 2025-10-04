@@ -6,6 +6,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ExternalLink, Play, Clock, Disc, Calendar } from "lucide-react";
 
+const toRomanNumeral = (num: number): string => {
+  if (num === 0) return "0";
+  const romanNumerals: [number, string][] = [
+    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
+    [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
+    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]
+  ];
+  let result = "";
+  for (const [value, numeral] of romanNumerals) {
+    while (num >= value) {
+      result += numeral;
+      num -= value;
+    }
+  }
+  return result;
+};
+
+const formatCatalogNumber = (catalogNumber: string): string => {
+  const match = catalogNumber.match(/^([A-Za-z\-]+)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const number = parseInt(match[2], 10);
+    return `${prefix}${toRomanNumeral(number)}`;
+  }
+  return catalogNumber;
+};
+
 interface Track {
   track_id: string;
   track_number: number;
@@ -122,8 +149,8 @@ const AlbumDetail = ({ album, tracks, onClose }: AlbumDetailProps) => {
           <div className="space-y-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <Badge variant="outline" className="text-xs font-mono">
-                  {album.catalog_number}
+                <Badge variant="outline" className="text-xs font-mono text-white border-white">
+                  {formatCatalogNumber(album.catalog_number)}
                 </Badge>
                 <Badge className="bg-primary/20 text-primary hover:bg-primary/30">
                   {album.album_type}

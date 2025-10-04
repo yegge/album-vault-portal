@@ -5,6 +5,33 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 
+const toRomanNumeral = (num: number): string => {
+  if (num === 0) return "0";
+  const romanNumerals: [number, string][] = [
+    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
+    [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
+    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]
+  ];
+  let result = "";
+  for (const [value, numeral] of romanNumerals) {
+    while (num >= value) {
+      result += numeral;
+      num -= value;
+    }
+  }
+  return result;
+};
+
+const formatCatalogNumber = (catalogNumber: string): string => {
+  const match = catalogNumber.match(/^([A-Za-z\-]+)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const number = parseInt(match[2], 10);
+    return `${prefix}${toRomanNumeral(number)}`;
+  }
+  return catalogNumber;
+};
+
 interface Album {
   id: string;
   artwork_front: string;
@@ -72,8 +99,8 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
             {album.album_artist}
           </p>
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-muted-foreground font-mono">
-              {album.catalog_number}
+            <span className="text-xs text-white font-mono">
+              {formatCatalogNumber(album.catalog_number)}
             </span>
             {album.status === 'Removed' && album.release_date && album.removal_date ? (
               <div className="text-xs text-right">
