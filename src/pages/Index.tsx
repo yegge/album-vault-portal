@@ -122,7 +122,7 @@ const Index = () => {
             Discography
           </h1>
           <p className="text-xl text-center text-muted-foreground max-w-2xl mx-auto">
-            An official collection of musical works with all the proper metadata for reference and authenticity purposes.
+            An official collection of musical works with all the proper metadata for reference and authenticity purposes. Does not include co-collaborations (bands).
           </p>
         </div>
       </header>
