@@ -11,6 +11,7 @@ import { TrackForm } from "@/components/admin/TrackForm";
 import { TrackList } from "@/components/admin/TrackList";
 import { StandaloneTrackForm } from "@/components/admin/StandaloneTrackForm";
 import { StandaloneTrackList } from "@/components/admin/StandaloneTrackList";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { LogOut, Music, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -218,18 +219,20 @@ const Admin = () => {
               </div>
 
               {showStandaloneTrackForm && (
-                <StandaloneTrackForm
-                  trackId={editingStandaloneTrackId}
-                  onSuccess={() => {
-                    setShowStandaloneTrackForm(false);
-                    setEditingStandaloneTrackId(undefined);
-                    queryClient.invalidateQueries({ queryKey: ["standalone-tracks"] });
-                  }}
-                  onCancel={() => {
-                    setShowStandaloneTrackForm(false);
-                    setEditingStandaloneTrackId(undefined);
-                  }}
-                />
+                <ErrorBoundary>
+                  <StandaloneTrackForm
+                    trackId={editingStandaloneTrackId}
+                    onSuccess={() => {
+                      setShowStandaloneTrackForm(false);
+                      setEditingStandaloneTrackId(undefined);
+                      queryClient.invalidateQueries({ queryKey: ["standalone-tracks"] });
+                    }}
+                    onCancel={() => {
+                      setShowStandaloneTrackForm(false);
+                      setEditingStandaloneTrackId(undefined);
+                    }}
+                  />
+                </ErrorBoundary>
               )}
 
               {!showStandaloneTrackForm && (
