@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/lib/logger";
 import { trackFormSchema, type TrackFormData, durationToInterval } from "@/lib/validation";
+import { StandaloneTrackNotes } from "./StandaloneTrackNotes";
 
 interface StandaloneTrackFormProps {
   trackId?: string;
@@ -22,6 +23,19 @@ interface StandaloneTrackFormProps {
 export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: StandaloneTrackFormProps) => {
   const { toast } = useToast();
   const isEditing = !!trackId;
+
+  const { data: albums = [] } = useQuery({
+    queryKey: ["albums"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("albums")
+        .select("id, album_name")
+        .order("album_name");
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const form = useForm<TrackFormData>({
     resolver: zodResolver(trackFormSchema),
@@ -34,6 +48,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
       stage_of_production: "CONCEPTION",
       visibility: "Public",
       allow_stream: true,
+      album_id: undefined,
     },
   });
 
@@ -69,6 +84,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
           stream_embed: data.stream_embed || undefined,
           allow_stream: data.allow_stream ?? true,
           commentary: data.commentary || undefined,
+          album_id: data.album_id || undefined,
         });
       }
 
@@ -92,6 +108,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
         stream_embed: values.stream_embed || null,
         allow_stream: values.allow_stream,
         commentary: values.commentary || null,
+        album_id: values.album_id || null,
       };
 
       if (isEditing) {
@@ -171,6 +188,32 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="album_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link to Album (Optional)</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an album..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {albums.map((album) => (
+                        <SelectItem key={album.id} value={album.id}>
+                          {album.album_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -332,6 +375,12 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
             </div>
           </form>
         </Form>
+
+        {isEditing && trackId && (
+          <div className="mt-6">
+            <StandaloneTrackNotes trackId={trackId} />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

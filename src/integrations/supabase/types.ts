@@ -110,9 +110,42 @@ export type Database = {
         }
         Relationships: []
       }
+      standalone_track_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note_content: string
+          track_id: string
+          user_initials: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note_content: string
+          track_id: string
+          user_initials: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note_content?: string
+          track_id?: string
+          user_initials?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standalone_track_notes_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "standalone_tracks"
+            referencedColumns: ["track_id"]
+          },
+        ]
+      }
       standalone_tracks: {
         Row: {
           album_artist: string | null
+          album_id: string | null
           allow_stream: boolean | null
           artists: Json | null
           commentary: string | null
@@ -133,6 +166,7 @@ export type Database = {
         }
         Insert: {
           album_artist?: string | null
+          album_id?: string | null
           allow_stream?: boolean | null
           artists?: Json | null
           commentary?: string | null
@@ -153,6 +187,7 @@ export type Database = {
         }
         Update: {
           album_artist?: string | null
+          album_id?: string | null
           allow_stream?: boolean | null
           artists?: Json | null
           commentary?: string | null
@@ -171,7 +206,15 @@ export type Database = {
           updated_at?: string | null
           visibility?: Database["public"]["Enums"]["visibility_level"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "standalone_tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tracks: {
         Row: {

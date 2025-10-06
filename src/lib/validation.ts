@@ -216,6 +216,12 @@ export const trackFormSchema = z.object({
     .optional()
     .or(z.literal("")),
   
+  album_id: z
+    .string()
+    .uuid()
+    .optional()
+    .or(z.literal("")),
+  
   duration: z
     .string()
     .regex(/^\d{1,2}:\d{2}$/, "Duration must be in MM:SS format (e.g., 3:45)")
