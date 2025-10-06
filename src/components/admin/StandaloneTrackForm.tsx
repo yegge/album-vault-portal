@@ -23,6 +23,7 @@ interface StandaloneTrackFormProps {
 export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: StandaloneTrackFormProps) => {
   const { toast } = useToast();
   const isEditing = !!trackId;
+  console.log("[StandaloneTrackForm] render", { isEditing, trackId });
 
   const { data: albums = [] } = useQuery({
     queryKey: ["albums"],
@@ -199,7 +200,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Link to Album (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select an album..." />
@@ -240,7 +241,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? "WIP"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -263,7 +264,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stage of Production</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? "CONCEPTION"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -289,18 +290,18 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Visibility</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Public">Public</SelectItem>
-                      <SelectItem value="Private">Private</SelectItem>
-                      <SelectItem value="Unlisted">Unlisted</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Select onValueChange={field.onChange} value={field.value ?? "Public"}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Public">Public</SelectItem>
+                        <SelectItem value="Private">Private</SelectItem>
+                        <SelectItem value="Unlisted">Unlisted</SelectItem>
+                      </SelectContent>
+                    </Select>
                   <FormMessage />
                 </FormItem>
               )}

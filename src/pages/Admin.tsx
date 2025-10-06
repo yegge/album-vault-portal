@@ -209,6 +209,7 @@ const Admin = () => {
                 {!showStandaloneTrackForm && (
                   <Button
                     onClick={() => {
+                      console.log('[Admin] Add Standalone Track clicked');
                       setShowStandaloneTrackForm(true);
                       setEditingStandaloneTrackId(undefined);
                     }}
