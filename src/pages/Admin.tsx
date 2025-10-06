@@ -9,10 +9,7 @@ import { AlbumForm } from "@/components/admin/AlbumForm";
 import { AlbumList } from "@/components/admin/AlbumList";
 import { TrackForm } from "@/components/admin/TrackForm";
 import { TrackList } from "@/components/admin/TrackList";
-import { StandaloneTrackForm } from "@/components/admin/StandaloneTrackForm";
-import { StandaloneTrackList } from "@/components/admin/StandaloneTrackList";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { LogOut, Music, AlertTriangle } from "lucide-react";
+import { LogOut, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { checkIsAdmin } from "@/lib/auth";
@@ -23,13 +20,11 @@ const Admin = () => {
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<"albums" | "create" | "tracks" | "standalone">("albums");
+  const [tab, setTab] = useState<"albums" | "create" | "tracks">("albums");
   const [editingAlbumId, setEditingAlbumId] = useState<string | undefined>(undefined);
   const [selectedAlbumId, setSelectedAlbumId] = useState<string | undefined>(undefined);
   const [editingTrackId, setEditingTrackId] = useState<string | undefined>(undefined);
   const [showTrackForm, setShowTrackForm] = useState(false);
-  const [editingStandaloneTrackId, setEditingStandaloneTrackId] = useState<string | undefined>(undefined);
-  const [showStandaloneTrackForm, setShowStandaloneTrackForm] = useState(false);
 
   const { data: albums } = useQuery({
     queryKey: ["admin-albums"],
@@ -110,15 +105,11 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs value={tab} onValueChange={(v) => setTab(v as "albums" | "create" | "tracks" | "standalone")} className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "albums" | "create" | "tracks")} className="w-full">
           <TabsList className="mb-8">
             <TabsTrigger value="albums">Albums</TabsTrigger>
             <TabsTrigger value="create">{editingAlbumId ? "Edit Album" : "Create Album"}</TabsTrigger>
             <TabsTrigger value="tracks">Album Tracks</TabsTrigger>
-            <TabsTrigger value="standalone">
-              <Music className="mr-2 h-4 w-4" />
-              Standalone Tracks
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="albums">
@@ -202,50 +193,6 @@ const Admin = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="standalone" className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Standalone Tracks (WIP - Admin Only)</h2>
-                {!showStandaloneTrackForm && (
-                  <Button
-                    onClick={() => {
-                      console.log('[Admin] Add Standalone Track clicked');
-                      setShowStandaloneTrackForm(true);
-                      setEditingStandaloneTrackId(undefined);
-                    }}
-                  >
-                    Add Standalone Track
-                  </Button>
-                )}
-              </div>
-
-              {showStandaloneTrackForm && (
-                <ErrorBoundary>
-                  <StandaloneTrackForm
-                    trackId={editingStandaloneTrackId}
-                    onSuccess={() => {
-                      setShowStandaloneTrackForm(false);
-                      setEditingStandaloneTrackId(undefined);
-                      queryClient.invalidateQueries({ queryKey: ["standalone-tracks"] });
-                    }}
-                    onCancel={() => {
-                      setShowStandaloneTrackForm(false);
-                      setEditingStandaloneTrackId(undefined);
-                    }}
-                  />
-                </ErrorBoundary>
-              )}
-
-              {!showStandaloneTrackForm && (
-                <StandaloneTrackList
-                  onEdit={(track) => {
-                    setEditingStandaloneTrackId(track.track_id);
-                    setShowStandaloneTrackForm(true);
-                  }}
-                />
-              )}
-            </div>
-          </TabsContent>
         </Tabs>
       </main>
     </div>
