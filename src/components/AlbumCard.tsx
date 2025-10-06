@@ -99,7 +99,7 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
             {album.album_artist}
           </p>
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-white font-mono">
+            <span className="text-xs text-foreground font-mono">
               {formatCatalogNumber(album.catalog_number)}
             </span>
             {album.status === 'Removed' && album.release_date && album.removal_date ? (
