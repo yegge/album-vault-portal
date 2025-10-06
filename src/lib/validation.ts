@@ -209,6 +209,13 @@ export const trackFormSchema = z.object({
     .min(1, "Track name is required")
     .max(200, "Track name must be less than 200 characters"),
   
+  album_artist: z
+    .string()
+    .trim()
+    .max(200, "Artist name must be less than 200 characters")
+    .optional()
+    .or(z.literal("")),
+  
   duration: z
     .string()
     .regex(/^\d{1,2}:\d{2}$/, "Duration must be in MM:SS format (e.g., 3:45)")

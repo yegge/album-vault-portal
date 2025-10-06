@@ -28,6 +28,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
     defaultValues: {
       track_number: 1,
       track_name: "",
+      album_artist: "",
       duration: "",
       track_status: "WIP",
       stage_of_production: "CONCEPTION",
@@ -59,6 +60,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
         form.reset({
           track_number: 1,
           track_name: data.track_name,
+          album_artist: data.album_artist || "",
           duration: formattedDuration,
           track_status: data.track_status,
           stage_of_production: data.stage_of_production,
@@ -81,6 +83,7 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
 
       const trackData = {
         track_name: values.track_name,
+        album_artist: values.album_artist || null,
         duration,
         track_status: values.track_status,
         stage_of_production: values.stage_of_production,
@@ -151,6 +154,20 @@ export const StandaloneTrackForm = ({ trackId, onSuccess, onCancel }: Standalone
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Track Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="album_artist"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Album Artist</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

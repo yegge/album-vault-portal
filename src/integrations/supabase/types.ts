@@ -112,6 +112,7 @@ export type Database = {
       }
       standalone_tracks: {
         Row: {
+          album_artist: string | null
           allow_stream: boolean | null
           artists: Json | null
           commentary: string | null
@@ -131,6 +132,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["visibility_level"]
         }
         Insert: {
+          album_artist?: string | null
           allow_stream?: boolean | null
           artists?: Json | null
           commentary?: string | null
@@ -150,6 +152,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["visibility_level"]
         }
         Update: {
+          album_artist?: string | null
           allow_stream?: boolean | null
           artists?: Json | null
           commentary?: string | null
