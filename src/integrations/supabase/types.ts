@@ -110,6 +110,66 @@ export type Database = {
         }
         Relationships: []
       }
+      standalone_tracks: {
+        Row: {
+          allow_stream: boolean | null
+          artists: Json | null
+          commentary: string | null
+          composers: Json | null
+          created_at: string | null
+          duration: unknown
+          isrc: string | null
+          key_contributors: Json | null
+          purchase_link: string | null
+          stage_date: string
+          stage_of_production: Database["public"]["Enums"]["production_stage"]
+          stream_embed: string | null
+          track_id: string
+          track_name: string
+          track_status: Database["public"]["Enums"]["track_status"]
+          updated_at: string | null
+          visibility: Database["public"]["Enums"]["visibility_level"]
+        }
+        Insert: {
+          allow_stream?: boolean | null
+          artists?: Json | null
+          commentary?: string | null
+          composers?: Json | null
+          created_at?: string | null
+          duration: unknown
+          isrc?: string | null
+          key_contributors?: Json | null
+          purchase_link?: string | null
+          stage_date?: string
+          stage_of_production?: Database["public"]["Enums"]["production_stage"]
+          stream_embed?: string | null
+          track_id?: string
+          track_name: string
+          track_status?: Database["public"]["Enums"]["track_status"]
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["visibility_level"]
+        }
+        Update: {
+          allow_stream?: boolean | null
+          artists?: Json | null
+          commentary?: string | null
+          composers?: Json | null
+          created_at?: string | null
+          duration?: unknown
+          isrc?: string | null
+          key_contributors?: Json | null
+          purchase_link?: string | null
+          stage_date?: string
+          stage_of_production?: Database["public"]["Enums"]["production_stage"]
+          stream_embed?: string | null
+          track_id?: string
+          track_name?: string
+          track_status?: Database["public"]["Enums"]["track_status"]
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["visibility_level"]
+        }
+        Relationships: []
+      }
       tracks: {
         Row: {
           album_id: string
